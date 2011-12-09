@@ -14,9 +14,9 @@ func process(read *bufio.ReadWriter, to chan Message) {
 		if err != nil {
 			nerr, ok := err.(net.Error)
 			if ok && !nerr.Timeout() {
-				panic("ERROR: " + nerr.String())
+				panic("ERROR: " + nerr.Error())
 			} else if !ok {
-				panic("ERROR: " + err.String())
+				panic("ERROR: " + err.Error())
 			}
 		}
 		buff := ""

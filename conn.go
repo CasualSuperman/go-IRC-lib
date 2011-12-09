@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"os"
 	"sync"
 )
 
@@ -14,12 +13,12 @@ const (
 
 type Conn struct {
 	serverConn net.Conn
-	info user
-	recv <-chan Message
-	sending *sync.Mutex
+	info       user
+	recv       <-chan Message
+	sending    *sync.Mutex
 }
 
-func Connect(server string, info user) (c Conn, err os.Error) {
+func Connect(server string, info user) (c Conn, err error) {
 	if DEBUG {
 		fmt.Printf("Connecting to %s.\n", server)
 	}
@@ -56,17 +55,23 @@ func (c Conn) Recv() <-chan Message {
 
 func (c Conn) Send(msg Message) {
 	c.sending.Lock()
+	defer c.sending.Unlock()
 	if DEBUG {
-		fmt.Printf("->" + msg.Tmpl(), msg.Data()...)
+		fmt.Printf("->"+msg.Tmpl(), msg.Data()...)
 	}
 	_, err := fmt.Fprintf(c.serverConn, msg.Tmpl(), msg.Data()...)
 	if err != nil {
 		panic(err)
 	}
-	c.sending.Unlock()
 }
 
 func handle(conn net.Conn, recv, send chan Message) {
 	io := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 	go process(io, recv)
+}
+
+func (c Conn) Write(data []byte) (int, error) {
+	c.sending.Lock()
+	defer c.sending.Unlock()
+	return c.serverConn.Write(data)
 }
