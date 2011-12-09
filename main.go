@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 )
 
 func main() {
@@ -37,7 +38,13 @@ func main() {
 					done = true
 				}
 			case send := <-input:
-				conn.Send(irc.NewPrivateMessage("#ufeff", send))
+				if string(send[0]) != "/"{
+					conn.Send(irc.NewPrivateMessage("#ufeff", send))
+				} else {
+					if pos := strings.Index(strings.ToLower(send), "whois"); pos == 1 {
+						conn.Write([]byte(": WHOIS" + send[pos+5:] + "\n"))
+					}
+				}
 			case done = <-quit:
 		}
 		if i == 20 {
@@ -49,11 +56,21 @@ func main() {
 					var buf []byte
 					isPrefix := true
 					for isPrefix {
-						buf, isPrefix, _ = reader.ReadLine()
-						line += string(buf)
+						buf, isPrefix, err = reader.ReadLine()
+						if err != nil {
+							if err.Error() == "EOF" {
+								done = true
+							} else {
+								fmt.Printf("ERROR: %s", err.Error())
+							}
+						} else {
+							line += string(buf)
+						}
 					}
-					input <- line
-					line = ""
+					if !done {
+						input <- line
+						line = ""
+					}
 				}
 			}()
 		}
