@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	user := irc.NewUser("goirc_tester", "rwertman", false, "Robert Wertman")
+	user := irc.NewUser("CasualSuperman", "rwertman", false, "Robert Wertman", "0176092")
 	conn, err := irc.Connect("irc.foonetic.net:6667", user)
 	if err != nil {
 		panic(err)
@@ -43,6 +43,8 @@ func main() {
 				} else {
 					if pos := strings.Index(strings.ToLower(send), "whois"); pos == 1 {
 						conn.Write([]byte(": WHOIS" + send[pos+5:] + "\n"))
+					} else {
+						conn.Write([]byte(": " + send[1:] + "\n"))
 					}
 				}
 			case done = <-quit:

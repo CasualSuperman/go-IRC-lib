@@ -12,6 +12,7 @@ GOFILES=\
 	messages/private.go\
 	messages/quit.go\
 	messages/user.go\
+	messages/pass.go\
 	messages/nick.go
 
 include $(GOROOT)/src/Make.pkg

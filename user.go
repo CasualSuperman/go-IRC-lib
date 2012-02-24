@@ -1,12 +1,16 @@
 package irc
 
 type user struct {
-	Nick, Username, Name string
+	Nick, Username, Name, Pass string
 	Hidden bool
 }
 
-func NewUser(nick, username string, hidden bool, name string) user {
-	return user{nick, username, name, hidden}
+func NewUser(nick, username string, hidden bool, name, pass string) user {
+	return user{nick, username, name, pass, hidden}
+}
+
+func (u user) PassMessage() Message {
+	return NewPassMessage(u.Pass)
 }
 
 func (u user) UserMessage() Message {

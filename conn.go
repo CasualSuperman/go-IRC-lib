@@ -30,6 +30,7 @@ func Connect(server string, info user) (c Conn, err error) {
 		return c, err
 	}
 	go func() {
+		c.Send(info.PassMessage())
 		c.Send(info.NickMessage())
 		c.Send(info.UserMessage())
 	}()
